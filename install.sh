@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Usage: ./install.sh <target-dir>
 #
-# Installs @fea-lib/jscad-builder into <target-dir>/@fea-lib/jscad-builder/
+# Installs @fea-lib/jscad into <target-dir>/@fea-lib/jscad/
 # and recursively installs declared peer libraries (@fea-lib/values).
 #
 # Example:
 #   ./install.sh ./src/libs
 #
 # After running, add to your tsconfig.json compilerOptions.paths:
-#   "@fea-lib/jscad-builder": ["<target-dir>/@fea-lib/jscad-builder/src/index.ts"]
-#   "@fea-lib/values":        ["<target-dir>/@fea-lib/values/src/index.ts"]
+#   "@fea-lib/jscad":   ["<target-dir>/@fea-lib/jscad/src/index.ts"]
+#   "@fea-lib/values":  ["<target-dir>/@fea-lib/values/src/index.ts"]
 
 set -euo pipefail
 

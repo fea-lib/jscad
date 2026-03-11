@@ -1,4 +1,4 @@
-# @fea-lib/jscad-builder
+# @fea-lib/jscad
 
 Ergonomic JSCAD wrapper. Unit-aware dimensions, analytical bounds, analytical placement.
 
@@ -23,7 +23,7 @@ This is a **copy-paste library** — you own the source. No npm publish.
 
 ```bash
 # Install into src/libs/ (adjust path as needed)
-curl -fsSL https://github.com/fea-lib/jscad-builder/raw/main/install.sh | bash -s src/libs
+curl -fsSL https://github.com/fea-lib/jscad/raw/main/install.sh | bash -s src/libs
 ```
 
 Or run the bundled script directly if you already have a local clone:
@@ -32,7 +32,7 @@ Or run the bundled script directly if you already have a local clone:
 ./install.sh src/libs
 ```
 
-This copies the source into `src/libs/@fea-lib/jscad-builder/` and recursively installs `@fea-lib/values` into `src/libs/@fea-lib/values/`.
+This copies the source into `src/libs/@fea-lib/jscad/` and recursively installs `@fea-lib/values` into `src/libs/@fea-lib/values/`.
 
 Install the JSCAD kernel via npm (or your package manager):
 
@@ -46,19 +46,19 @@ npm install @jscad/modeling
 {
   "compilerOptions": {
     "paths": {
-      "@fea-lib/jscad-builder": ["src/libs/@fea-lib/jscad-builder/src/index.ts"],
+      "@fea-lib/jscad":   ["src/libs/@fea-lib/jscad/src/index.ts"],
       "@fea-lib/values":        ["src/libs/@fea-lib/values/src/index.ts"]
     }
   }
 }
 ```
 
-Both libraries are installed side-by-side, so the relative path from `jscad-builder` to `values` is always `../values/`.
+Both libraries are installed side-by-side, so the relative path from `jscad` to `values` is always `../values/`.
 
 ## Quick start
 
 ```ts
-import { createBuilder } from '@fea-lib/jscad-builder'
+import { createBuilder } from '@fea-lib/jscad'
 import { mm, cm } from '@fea-lib/values'
 
 const { cuboid, cylinder, translate, rotate, subtract, pipe } =
@@ -251,7 +251,7 @@ pipe(sphere({ radius: 20 }), translateX(50), colorize([1, 0, 0]))
 `deg`, `rad` — angle constructors.
 
 ```ts
-import { mm, cm, deg } from '@fea-lib/jscad-builder'
+import { mm, cm, deg } from '@fea-lib/jscad'
 
 cuboid({ size: { x: cm(50), y: mm(200), z: inch(3) } })
 rotateZ(deg(45))
