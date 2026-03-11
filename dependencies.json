@@ -1,0 +1,8 @@
+{
+  "peerLibraries": [
+    {
+      "repo": "https://github.com/fea-lib/values",
+      "installPath": "@fea-lib/values"
+    }
+  ]
+}

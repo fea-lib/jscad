@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@fea-lib/values": ["../values/src/index.ts"]
+    }
+  },
+  "include": ["src", "__tests__"]
+}

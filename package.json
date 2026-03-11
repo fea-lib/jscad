@@ -1,0 +1,15 @@
+{
+  "name": "@fea-lib/jscad-builder",
+  "version": "1.0.0",
+  "description": "Ergonomic JSCAD wrapper with unit-aware dimensions, analytical bounds, and analytical placement.",
+  "type": "module",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "@jscad/modeling": "^2.12.6"
+  },
+  "devDependencies": {
+    "@jscad/modeling": "^2.12.6",
+    "typescript": "^5.4.5",
+    "vitest": "^2.0.0"
+  }
+}
