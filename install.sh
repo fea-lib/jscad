@@ -93,5 +93,20 @@ if [ "$IS_TOP_LEVEL" = true ]; then
     fi
   fi
 
+  # Offer to install npm dependencies
+  NPM_DEPS=$(node -e "
+    const fs = require('fs');
+    const d = JSON.parse(fs.readFileSync('$DEPS_FILE', 'utf8'));
+    process.stdout.write((d.npmDependencies || []).join(' '));
+  ")
+  if [ -n "$NPM_DEPS" ]; then
+    echo ""
+    printf "Install npm dependencies (%s)? [y/N] " "$NPM_DEPS"
+    read -r REPLY </dev/tty
+    if [[ "$REPLY" =~ ^[Yy]$ ]]; then
+      npm install $NPM_DEPS
+    fi
+  fi
+
   rm "$SUMMARY_FILE"
 fi
