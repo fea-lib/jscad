@@ -13,11 +13,10 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="${1:?Usage: ./install.sh <target-dir>}"
 
-# Read library name from package.json
-NAME=$(node -e "process.stdout.write(require('$SCRIPT_DIR/package.json').name)")
+# Library name (hardcoded — script is designed to be fetched and run remotely)
+NAME="@fea-lib/jscad"
 INSTALL_PATH="$TARGET_DIR/$NAME"
 
 echo "Installing $NAME into $INSTALL_PATH ..."
