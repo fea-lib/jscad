@@ -93,11 +93,11 @@ if [ "$IS_TOP_LEVEL" = true ]; then
     fi
   fi
 
-  # Offer to install npm dependencies
+  # Offer to install npm peer dependencies declared in package.json
   NPM_DEPS=$(node -e "
     const fs = require('fs');
-    const d = JSON.parse(fs.readFileSync('$DEPS_FILE', 'utf8'));
-    process.stdout.write((d.npmDependencies || []).join(' '));
+    const pkg = JSON.parse(fs.readFileSync('$INSTALL_PATH/package.json', 'utf8'));
+    process.stdout.write(Object.keys(pkg.peerDependencies || {}).join(' '));
   ")
   if [ -n "$NPM_DEPS" ]; then
     echo ""
