@@ -33,12 +33,12 @@ rm -rf "$TMP"
 DEPS_FILE="$INSTALL_PATH/dependencies.json"
 if [ -f "$DEPS_FILE" ]; then
   PEER_COUNT=$(node -e "
-    const d = require('$DEPS_FILE');
+    const d = JSON.parse(require('fs').readFileSync('$DEPS_FILE', 'utf8'));
     process.stdout.write(String((d.peerLibraries || []).length));
   ")
   for i in $(seq 0 $((PEER_COUNT - 1))); do
     PEER_INSTALL_SH=$(node -e "
-      const d = require('$DEPS_FILE');
+      const d = JSON.parse(require('fs').readFileSync('$DEPS_FILE', 'utf8'));
       const p = d.peerLibraries[$i];
       process.stdout.write(p.installScript);
     ")
