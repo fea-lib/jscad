@@ -36,6 +36,7 @@ if [ -f "$DEPS_FILE" ]; then
     const d = JSON.parse(require('fs').readFileSync('$DEPS_FILE', 'utf8'));
     process.stdout.write(String((d.peerLibraries || []).length));
   ")
+  if [ "$PEER_COUNT" -gt 0 ]; then
   for i in $(seq 0 $((PEER_COUNT - 1))); do
     PEER_INSTALL_SH=$(node -e "
       const d = JSON.parse(require('fs').readFileSync('$DEPS_FILE', 'utf8'));
@@ -47,6 +48,7 @@ if [ -f "$DEPS_FILE" ]; then
     bash "$PEER_TMP" "$TARGET_DIR"
     rm "$PEER_TMP"
   done
+  fi
 fi
 
 echo ""
