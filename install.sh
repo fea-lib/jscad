@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-TARGET_DIR="${1:?Usage: ./install.sh <target-dir>}"
+TARGET_DIR="$(cd "$PWD" && mkdir -p "${1:?Usage: ./install.sh <target-dir>}" && cd "$1" && pwd)"
 
 # Library name (hardcoded — script is designed to be fetched and run remotely)
 NAME="@fea-lib/jscad"
