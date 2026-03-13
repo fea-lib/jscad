@@ -5,15 +5,15 @@ import type Path2 from "@jscad/modeling/src/geometries/path2/type";
 import type { Bounds, Origin, Dim, Vec3, Vec2, JscadObject, AnyGeom } from "./types";
 import {
   isLength,
-  toCm,
-  toMm,
-  toM,
-  toKm,
-  toμm,
-  toInch,
-  toFt,
-  toYd,
-  toMile,
+  μm,
+  mm,
+  cm,
+  m,
+  km,
+  inch,
+  ft,
+  yd,
+  mile,
   type Unit,
 } from "@fea-lib/values";
 
@@ -85,15 +85,15 @@ export type DimResolver = (d: Dim) => number;
 export function toBaseValue(d: Dim, coordinateUnit: Unit): number {
   if (!isLength(d)) return d;
   switch (coordinateUnit) {
-    case "μm":   return toμm(d).value;
-    case "mm":   return toMm(d).value;
-    case "cm":   return toCm(d).value;
-    case "m":    return toM(d).value;
-    case "km":   return toKm(d).value;
-    case "inch": return toInch(d).value;
-    case "ft":   return toFt(d).value;
-    case "yd":   return toYd(d).value;
-    case "mile": return toMile(d).value;
+    case "μm":   return (μm(d) as unknown as { value: number }).value;
+    case "mm":   return (mm(d) as unknown as { value: number }).value;
+    case "cm":   return (cm(d) as unknown as { value: number }).value;
+    case "m":    return (m(d) as unknown as { value: number }).value;
+    case "km":   return (km(d) as unknown as { value: number }).value;
+    case "inch": return (inch(d) as unknown as { value: number }).value;
+    case "ft":   return (ft(d) as unknown as { value: number }).value;
+    case "yd":   return (yd(d) as unknown as { value: number }).value;
+    case "mile": return (mile(d) as unknown as { value: number }).value;
   }
 }
 

@@ -128,7 +128,7 @@ describe("colorize()", () => {
   it("applies color to geom", () => {
     const b = cuboid({ size: { x: 10, y: 10, z: 10 } });
     const colored = colorize([1, 0, 0, 0.5])(b);
-    expect(colored.geom[0].color).toBeDefined();
+    expect(colored.geom[0]!.color).toBeDefined();
   });
 });
 

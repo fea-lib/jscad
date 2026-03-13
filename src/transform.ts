@@ -1,13 +1,13 @@
 import modeling from "@jscad/modeling";
 import type { Dim, Vec3, JscadObject, AnyGeom } from "./types";
 import type { Angle } from "@fea-lib/values";
-import { isAngle, toRad } from "@fea-lib/values";
+import { isAngle, rad } from "@fea-lib/values";
 import { boundsFromGeom, type DimResolver } from "./primitives";
 
 /** Resolve an Angle (number in radians, or a Measure in deg/rad) to radians. */
 function resolveAngle(a: Angle): number {
   if (!isAngle(a)) return a;
-  return toRad(a).value;
+  return (rad(a) as unknown as { value: number }).value;
 }
 
 const {

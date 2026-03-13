@@ -26,8 +26,8 @@ const {
     hullChain: jscadHullChain,
   },
   modifiers: {
-    generalize: jscadGeneralize,
-    snap: jscadSnap,
+    generalize: _jscadGeneralize,
+    snap: _jscadSnap,
     retessellate: jscadRetessellate,
   },
   booleans: {
@@ -38,6 +38,15 @@ const {
     vectorText: jscadVectorText,
   },
 } = modeling;
+
+// generalize and snap are exported as named (not default) exports in their .d.ts files,
+// so TypeScript resolves the destructured value as the module namespace rather than the
+// function. Cast to the actual callable signature to restore type safety.
+const jscadGeneralize = _jscadGeneralize as unknown as (
+  options: { snap?: boolean; simplify?: boolean; triangulate?: boolean },
+  geometry: any
+) => any;
+const jscadSnap = _jscadSnap as unknown as (geometry: any) => any;
 
 // ---------------------------------------------------------------------------
 // Extrusions
@@ -201,7 +210,7 @@ export function makeProject() {
     origin?: [number, number, number];
   }): (obj: JscadObject) => JscadObject {
     return (obj) => {
-      const projected = obj.geom.map((g) => jscadProject(opts ?? {}, g as any) as AnyGeom);
+      const projected = obj.geom.map((g) => jscadProject(opts ?? {}, g as any) as unknown as AnyGeom);
       return { geom: projected, bounds: boundsFromGeom(projected), origin: obj.origin };
     };
   };
@@ -231,7 +240,7 @@ export function makeExpand() {
     segments?: number;
   }): (obj: JscadObject) => JscadObject {
     return (obj) => {
-      const expanded = obj.geom.map((g) => jscadExpand(opts, g as any) as AnyGeom);
+      const expanded = obj.geom.map((g) => jscadExpand(opts, g as any) as unknown as AnyGeom);
       return { geom: expanded, bounds: boundsFromGeom(expanded), origin: obj.origin };
     };
   };
