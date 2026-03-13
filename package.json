@@ -1,11 +1,15 @@
 {
   "name": "@fea-lib/jscad",
   "version": "1.0.0",
-  "description": "Ergonomic JSCAD wrapper with unit-aware dimensions, analytical bounds, and analytical placement.",
+  "description": "Ergonomic JSCAD wrapper with unit-aware dimensions, analytical bounds, analytical placement, and Three.js viewer components.",
   "type": "module",
   "main": "src/index.ts",
   "peerDependencies": {
-    "@jscad/modeling": "^2.12.6"
+    "@jscad/modeling": "^2.12.6",
+    "@jscad/stl-serializer": ">=2",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "three": ">=0.155"
   },
   "scripts": {
     "test": "vitest run",
@@ -13,6 +17,11 @@
   },
   "devDependencies": {
     "@jscad/modeling": "^2.12.6",
+    "@jscad/stl-serializer": ">=2",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/three": "^0.183.1",
+    "three": ">=0.155",
     "typescript": "^5.4.5",
     "vitest": "^2.0.0"
   }

@@ -6,6 +6,9 @@
     "strict": true,
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "allowArbitraryExtensions": true,
     "paths": {
       "@fea-lib/values": ["../values/src/index.ts"]
     }

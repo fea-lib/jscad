@@ -87,3 +87,20 @@ export { fromGeom } from "./primitives";
 
 // pipe is also unit-agnostic
 export { pipe } from "./pipe";
+
+// Viewer — Three.js rendering layer, React components, and STL download
+export type {
+  JscadModel,
+  Material,
+  Materials,
+  MaterialId,
+  Outline,
+} from "./viewer/types";
+export { materialId, toThree } from "./viewer/types";
+export { jscadToThree } from "./viewer/jscadToThree";
+export { downloadModelAsStl } from "./viewer/downloadModel";
+export {
+  JscadModelViewer,
+  type Props as JscadModelViewerProps,
+} from "./viewer/components/react/JscadModelViewer";
+export { ThreeModelViewer } from "./viewer/components/react/ThreeModelViewer";
