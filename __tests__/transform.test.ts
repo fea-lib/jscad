@@ -208,6 +208,76 @@ describe("rotateX/Y/Z()", () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Array-input dispatch tests (T-07)
+// ---------------------------------------------------------------------------
+
+describe("translate() — array input", () => {
+  const { translate, cuboid } = createBuilder({ coordinateUnit: "cm" });
+
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result = translate({ x: 5 })([a, b]);
+    expect(result).toHaveLength(2);
+  });
+
+  it("each element is independently translated", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const [ra, rb] = translate({ x: 5 })([a, b]);
+    expect(ra!.bounds.min[0]).toBeCloseTo(5);
+    expect(rb!.bounds.min[0]).toBeCloseTo(5);
+    // Sizes are preserved independently
+    expect(ra!.bounds.max[0] - ra!.bounds.min[0]).toBeCloseTo(10);
+    expect(rb!.bounds.max[0] - rb!.bounds.min[0]).toBeCloseTo(20);
+  });
+});
+
+describe("rotate() — array input", () => {
+  const { rotate, cuboid } = createBuilder({ coordinateUnit: "cm" });
+
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result = rotate({ y: Math.PI / 4 })([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("scale() — array input", () => {
+  const { scale, cuboid } = createBuilder({ coordinateUnit: "cm" });
+
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result = scale({ x: 2 })([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("colorize() — array input", () => {
+  const { colorize, cuboid } = createBuilder({ coordinateUnit: "cm" });
+
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result = colorize([1, 0, 0])([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("mirrorX() — array input", () => {
+  const { mirrorX, cuboid } = createBuilder({ coordinateUnit: "cm" });
+
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result = mirrorX()([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
 describe("centerX/Y/Z()", () => {
   const { centerX, centerY, centerZ } = createBuilder({ coordinateUnit: "cm" });
 

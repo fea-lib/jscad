@@ -2,7 +2,7 @@ import modeling from "@jscad/modeling";
 import type { Dim, Vec3, JscadObject, AnyGeom } from "./types";
 import type { Angle } from "@fea-lib/values";
 import { isAngle, rad } from "@fea-lib/values";
-import { boundsFromGeom, type DimResolver } from "./primitives";
+import { boundsFromGeom, r5, type DimResolver } from "./primitives";
 
 /** Resolve an Angle (number in radians, or a Measure in deg/rad) to radians. */
 function resolveAngle(a: Angle): number {
@@ -62,24 +62,26 @@ export type AngleVec3 = { x?: Angle; y?: Angle; z?: Angle };
 export function makeTranslate(resolve: DimResolver) {
   return function translate(
     v: Vec3,
-  ): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const dx = resolve(v.x ?? 0);
       const dy = resolve(v.y ?? 0);
       const dz = resolve(v.z ?? 0);
       return {
         geom: obj.geom.map((g) => jscadTranslate([dx, dy, dz], g as any) as AnyGeom),
         bounds: {
-          min: [obj.bounds.min[0] + dx, obj.bounds.min[1] + dy, obj.bounds.min[2] + dz],
-          max: [obj.bounds.max[0] + dx, obj.bounds.max[1] + dy, obj.bounds.max[2] + dz],
+          min: [r5(obj.bounds.min[0] + dx), r5(obj.bounds.min[1] + dy), r5(obj.bounds.min[2] + dz)],
+          max: [r5(obj.bounds.max[0] + dx), r5(obj.bounds.max[1] + dy), r5(obj.bounds.max[2] + dz)],
         },
         origin: {
-          x: obj.origin.x + dx,
-          y: obj.origin.y + dy,
-          z: obj.origin.z + dz,
+          x: r5(obj.origin.x + dx),
+          y: r5(obj.origin.y + dy),
+          z: r5(obj.origin.z + dz),
         },
       };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -88,18 +90,20 @@ export function makeTranslate(resolve: DimResolver) {
  * Shifts all geometry along the X axis.
  */
 export function makeTranslateX(resolve: DimResolver) {
-  return function translateX(d: Dim): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function translateX(d: Dim): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const dx = resolve(d);
       return {
         geom: obj.geom.map((g) => jscadTranslateX(dx, g as any) as AnyGeom),
         bounds: {
-          min: [obj.bounds.min[0] + dx, obj.bounds.min[1], obj.bounds.min[2]],
-          max: [obj.bounds.max[0] + dx, obj.bounds.max[1], obj.bounds.max[2]],
+          min: [r5(obj.bounds.min[0] + dx), obj.bounds.min[1], obj.bounds.min[2]],
+          max: [r5(obj.bounds.max[0] + dx), obj.bounds.max[1], obj.bounds.max[2]],
         },
-        origin: { x: obj.origin.x + dx, y: obj.origin.y, z: obj.origin.z },
+        origin: { x: r5(obj.origin.x + dx), y: obj.origin.y, z: obj.origin.z },
       };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -108,18 +112,20 @@ export function makeTranslateX(resolve: DimResolver) {
  * Shifts all geometry along the Y axis.
  */
 export function makeTranslateY(resolve: DimResolver) {
-  return function translateY(d: Dim): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function translateY(d: Dim): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const dy = resolve(d);
       return {
         geom: obj.geom.map((g) => jscadTranslateY(dy, g as any) as AnyGeom),
         bounds: {
-          min: [obj.bounds.min[0], obj.bounds.min[1] + dy, obj.bounds.min[2]],
-          max: [obj.bounds.max[0], obj.bounds.max[1] + dy, obj.bounds.max[2]],
+          min: [obj.bounds.min[0], r5(obj.bounds.min[1] + dy), obj.bounds.min[2]],
+          max: [obj.bounds.max[0], r5(obj.bounds.max[1] + dy), obj.bounds.max[2]],
         },
-        origin: { x: obj.origin.x, y: obj.origin.y + dy, z: obj.origin.z },
+        origin: { x: obj.origin.x, y: r5(obj.origin.y + dy), z: obj.origin.z },
       };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -128,18 +134,20 @@ export function makeTranslateY(resolve: DimResolver) {
  * Shifts all geometry along the Z axis.
  */
 export function makeTranslateZ(resolve: DimResolver) {
-  return function translateZ(d: Dim): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function translateZ(d: Dim): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const dz = resolve(d);
       return {
         geom: obj.geom.map((g) => jscadTranslateZ(dz, g as any) as AnyGeom),
         bounds: {
-          min: [obj.bounds.min[0], obj.bounds.min[1], obj.bounds.min[2] + dz],
-          max: [obj.bounds.max[0], obj.bounds.max[1], obj.bounds.max[2] + dz],
+          min: [obj.bounds.min[0], obj.bounds.min[1], r5(obj.bounds.min[2] + dz)],
+          max: [obj.bounds.max[0], obj.bounds.max[1], r5(obj.bounds.max[2] + dz)],
         },
-        origin: { x: obj.origin.x, y: obj.origin.y, z: obj.origin.z + dz },
+        origin: { x: obj.origin.x, y: obj.origin.y, z: r5(obj.origin.z + dz) },
       };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -167,7 +175,7 @@ function rotateOrigin(
   // Rz
   const x3 = Math.cos(rz) * x - Math.sin(rz) * y;
   const y3 = Math.sin(rz) * x + Math.cos(rz) * y;
-  return { x: x3, y: y3, z: z2 };
+  return { x: r5(x3), y: r5(y3), z: r5(z2) };
 }
 
 /**
@@ -193,9 +201,9 @@ export function makeRotate() {
   return function rotate(
     angles: AngleVec3,
     opts: { around?: "center" | "corner" } = {},
-  ): (obj: JscadObject) => JscadObject {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
     const around = opts.around ?? "center";
-    return (obj) => {
+    const single = (obj: JscadObject): JscadObject => {
       const resolved: [number, number, number] = [
         resolveAngle(angles.x ?? 0),
         resolveAngle(angles.y ?? 0),
@@ -223,10 +231,12 @@ export function makeRotate() {
         obj.origin.x - cx, obj.origin.y - cy, obj.origin.z - cz,
         resolved[0], resolved[1], resolved[2],
       );
-      const newOrigin = { x: shifted.x + cx, y: shifted.y + cy, z: shifted.z + cz };
+      const newOrigin = { x: r5(shifted.x + cx), y: r5(shifted.y + cy), z: r5(shifted.z + cz) };
 
       return { geom: rotated, bounds: boundsFromGeom(rotated), origin: newOrigin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -240,9 +250,9 @@ export function makeRotateX() {
   return function rotateX(
     angle: Angle,
     opts: { around?: "center" | "corner" } = {},
-  ): (obj: JscadObject) => JscadObject {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
     const around = opts.around ?? "center";
-    return (obj) => {
+    const single = (obj: JscadObject): JscadObject => {
       const rad = resolveAngle(angle);
       if (around === "corner") {
         const rotated = obj.geom.map((g) => jscadRotateX(rad, g as any) as AnyGeom);
@@ -258,8 +268,10 @@ export function makeRotateX() {
         return jscadTranslate([cx, cy, cz], r as any) as AnyGeom;
       });
       const shifted = rotateOrigin(obj.origin.x - cx, obj.origin.y - cy, obj.origin.z - cz, rad, 0, 0);
-      return { geom: rotated, bounds: boundsFromGeom(rotated), origin: { x: shifted.x + cx, y: shifted.y + cy, z: shifted.z + cz } };
+      return { geom: rotated, bounds: boundsFromGeom(rotated), origin: { x: r5(shifted.x + cx), y: r5(shifted.y + cy), z: r5(shifted.z + cz) } };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -273,9 +285,9 @@ export function makeRotateY() {
   return function rotateY(
     angle: Angle,
     opts: { around?: "center" | "corner" } = {},
-  ): (obj: JscadObject) => JscadObject {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
     const around = opts.around ?? "center";
-    return (obj) => {
+    const single = (obj: JscadObject): JscadObject => {
       const rad = resolveAngle(angle);
       if (around === "corner") {
         const rotated = obj.geom.map((g) => jscadRotateY(rad, g as any) as AnyGeom);
@@ -291,8 +303,10 @@ export function makeRotateY() {
         return jscadTranslate([cx, cy, cz], r as any) as AnyGeom;
       });
       const shifted = rotateOrigin(obj.origin.x - cx, obj.origin.y - cy, obj.origin.z - cz, 0, rad, 0);
-      return { geom: rotated, bounds: boundsFromGeom(rotated), origin: { x: shifted.x + cx, y: shifted.y + cy, z: shifted.z + cz } };
+      return { geom: rotated, bounds: boundsFromGeom(rotated), origin: { x: r5(shifted.x + cx), y: r5(shifted.y + cy), z: r5(shifted.z + cz) } };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -306,9 +320,9 @@ export function makeRotateZ() {
   return function rotateZ(
     angle: Angle,
     opts: { around?: "center" | "corner" } = {},
-  ): (obj: JscadObject) => JscadObject {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
     const around = opts.around ?? "center";
-    return (obj) => {
+    const single = (obj: JscadObject): JscadObject => {
       const rad = resolveAngle(angle);
       if (around === "corner") {
         const rotated = obj.geom.map((g) => jscadRotateZ(rad, g as any) as AnyGeom);
@@ -324,8 +338,10 @@ export function makeRotateZ() {
         return jscadTranslate([cx, cy, cz], r as any) as AnyGeom;
       });
       const shifted = rotateOrigin(obj.origin.x - cx, obj.origin.y - cy, obj.origin.z - cz, 0, 0, rad);
-      return { geom: rotated, bounds: boundsFromGeom(rotated), origin: { x: shifted.x + cx, y: shifted.y + cy, z: shifted.z + cz } };
+      return { geom: rotated, bounds: boundsFromGeom(rotated), origin: { x: r5(shifted.x + cx), y: r5(shifted.y + cy), z: r5(shifted.z + cz) } };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -353,20 +369,22 @@ export type ScaleVec3 = { x?: number; y?: number; z?: number };
 export function makeScale() {
   return function scale(
     v: ScaleVec3,
-  ): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const sx = v.x ?? 1;
       const sy = v.y ?? 1;
       const sz = v.z ?? 1;
       return {
         geom: obj.geom.map((g) => jscadScale([sx, sy, sz], g as any) as AnyGeom),
         bounds: {
-          min: [obj.bounds.min[0] * sx, obj.bounds.min[1] * sy, obj.bounds.min[2] * sz],
-          max: [obj.bounds.max[0] * sx, obj.bounds.max[1] * sy, obj.bounds.max[2] * sz],
+          min: [r5(obj.bounds.min[0] * sx), r5(obj.bounds.min[1] * sy), r5(obj.bounds.min[2] * sz)],
+          max: [r5(obj.bounds.max[0] * sx), r5(obj.bounds.max[1] * sy), r5(obj.bounds.max[2] * sz)],
         },
-        origin: { x: obj.origin.x * sx, y: obj.origin.y * sy, z: obj.origin.z * sz },
+        origin: { x: r5(obj.origin.x * sx), y: r5(obj.origin.y * sy), z: r5(obj.origin.z * sz) },
       };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -375,15 +393,17 @@ export function makeScale() {
  * Scales geometry along the X axis only.
  */
 export function makeScaleX() {
-  return function scaleX(factor: number): (obj: JscadObject) => JscadObject {
-    return (obj) => ({
+  return function scaleX(factor: number): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => ({
       geom: obj.geom.map((g) => jscadScaleX(factor, g as any) as AnyGeom),
       bounds: {
-        min: [obj.bounds.min[0] * factor, obj.bounds.min[1], obj.bounds.min[2]],
-        max: [obj.bounds.max[0] * factor, obj.bounds.max[1], obj.bounds.max[2]],
+        min: [r5(obj.bounds.min[0] * factor), obj.bounds.min[1], obj.bounds.min[2]],
+        max: [r5(obj.bounds.max[0] * factor), obj.bounds.max[1], obj.bounds.max[2]],
       },
-      origin: { x: obj.origin.x * factor, y: obj.origin.y, z: obj.origin.z },
+      origin: { x: r5(obj.origin.x * factor), y: obj.origin.y, z: obj.origin.z },
     });
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -392,15 +412,17 @@ export function makeScaleX() {
  * Scales geometry along the Y axis only.
  */
 export function makeScaleY() {
-  return function scaleY(factor: number): (obj: JscadObject) => JscadObject {
-    return (obj) => ({
+  return function scaleY(factor: number): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => ({
       geom: obj.geom.map((g) => jscadScaleY(factor, g as any) as AnyGeom),
       bounds: {
-        min: [obj.bounds.min[0], obj.bounds.min[1] * factor, obj.bounds.min[2]],
-        max: [obj.bounds.max[0], obj.bounds.max[1] * factor, obj.bounds.max[2]],
+        min: [obj.bounds.min[0], r5(obj.bounds.min[1] * factor), obj.bounds.min[2]],
+        max: [obj.bounds.max[0], r5(obj.bounds.max[1] * factor), obj.bounds.max[2]],
       },
-      origin: { x: obj.origin.x, y: obj.origin.y * factor, z: obj.origin.z },
+      origin: { x: obj.origin.x, y: r5(obj.origin.y * factor), z: obj.origin.z },
     });
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -409,15 +431,17 @@ export function makeScaleY() {
  * Scales geometry along the Z axis only.
  */
 export function makeScaleZ() {
-  return function scaleZ(factor: number): (obj: JscadObject) => JscadObject {
-    return (obj) => ({
+  return function scaleZ(factor: number): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => ({
       geom: obj.geom.map((g) => jscadScaleZ(factor, g as any) as AnyGeom),
       bounds: {
-        min: [obj.bounds.min[0], obj.bounds.min[1], obj.bounds.min[2] * factor],
-        max: [obj.bounds.max[0], obj.bounds.max[1], obj.bounds.max[2] * factor],
+        min: [obj.bounds.min[0], obj.bounds.min[1], r5(obj.bounds.min[2] * factor)],
+        max: [obj.bounds.max[0], obj.bounds.max[1], r5(obj.bounds.max[2] * factor)],
       },
-      origin: { x: obj.origin.x, y: obj.origin.y, z: obj.origin.z * factor },
+      origin: { x: obj.origin.x, y: obj.origin.y, z: r5(obj.origin.z * factor) },
     });
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -443,8 +467,8 @@ export function makeMirror() {
   return function mirror(opts: {
     origin?: NumVec3;
     normal?: NumVec3;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const jscadOpts = {
         origin: opts.origin
           ? [opts.origin.x ?? 0, opts.origin.y ?? 0, opts.origin.z ?? 0] as [number, number, number]
@@ -456,6 +480,8 @@ export function makeMirror() {
       const mirrored = obj.geom.map((g) => jscadMirror(jscadOpts, g as any) as AnyGeom);
       return { geom: mirrored, bounds: boundsFromGeom(mirrored), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -464,11 +490,13 @@ export function makeMirror() {
  * Mirrors geometry across the YZ plane (negates X coordinates).
  */
 export function makeMirrorX() {
-  return function mirrorX(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function mirrorX(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const mirrored = obj.geom.map((g) => jscadMirrorX(g as any) as AnyGeom);
       return { geom: mirrored, bounds: boundsFromGeom(mirrored), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -477,11 +505,13 @@ export function makeMirrorX() {
  * Mirrors geometry across the XZ plane (negates Y coordinates).
  */
 export function makeMirrorY() {
-  return function mirrorY(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function mirrorY(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const mirrored = obj.geom.map((g) => jscadMirrorY(g as any) as AnyGeom);
       return { geom: mirrored, bounds: boundsFromGeom(mirrored), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -490,11 +520,13 @@ export function makeMirrorY() {
  * Mirrors geometry across the XY plane (negates Z coordinates).
  */
 export function makeMirrorZ() {
-  return function mirrorZ(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function mirrorZ(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const mirrored = obj.geom.map((g) => jscadMirrorZ(g as any) as AnyGeom);
       return { geom: mirrored, bounds: boundsFromGeom(mirrored), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -519,8 +551,8 @@ export function makeCenter() {
   return function center(opts: {
     axes?: BoolVec3;
     relativeTo?: NumVec3;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const jscadOpts = {
         axes: opts.axes
           ? [opts.axes.x ?? false, opts.axes.y ?? false, opts.axes.z ?? false] as [boolean, boolean, boolean]
@@ -532,6 +564,8 @@ export function makeCenter() {
       const centered = obj.geom.map((g) => jscadCenter(jscadOpts, g as any) as AnyGeom);
       return { geom: centered, bounds: boundsFromGeom(centered), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -540,11 +574,13 @@ export function makeCenter() {
  * Centers geometry on the X axis.
  */
 export function makeCenterX() {
-  return function centerX(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function centerX(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const centered = obj.geom.map((g) => jscadCenterX(g as any) as AnyGeom);
       return { geom: centered, bounds: boundsFromGeom(centered), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -553,11 +589,13 @@ export function makeCenterX() {
  * Centers geometry on the Y axis.
  */
 export function makeCenterY() {
-  return function centerY(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function centerY(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const centered = obj.geom.map((g) => jscadCenterY(g as any) as AnyGeom);
       return { geom: centered, bounds: boundsFromGeom(centered), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -566,11 +604,13 @@ export function makeCenterY() {
  * Centers geometry on the Z axis.
  */
 export function makeCenterZ() {
-  return function centerZ(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function centerZ(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const centered = obj.geom.map((g) => jscadCenterZ(g as any) as AnyGeom);
       return { geom: centered, bounds: boundsFromGeom(centered), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -600,8 +640,8 @@ export function makeAlign() {
     modes?: Array<"center" | "max" | "min" | "none">;
     relativeTo?: NullableNumVec3;
     grouped?: boolean;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const jscadOpts = {
         modes: opts.modes,
         relativeTo: opts.relativeTo
@@ -612,6 +652,8 @@ export function makeAlign() {
       const aligned = obj.geom.map((g) => jscadAlign(jscadOpts as any, g as any) as AnyGeom);
       return { geom: aligned, bounds: boundsFromGeom(aligned), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -633,11 +675,13 @@ export function makeAlign() {
 export function makeTransform() {
   return function transform(
     matrix: readonly number[],
-  ): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const transformed = obj.geom.map((g) => jscadTransform(matrix as any, g as any) as AnyGeom);
       return { geom: transformed, bounds: boundsFromGeom(transformed), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -659,11 +703,13 @@ export function makeTransform() {
 export function makeColorize() {
   return function colorize(
     color: [number, number, number] | [number, number, number, number],
-  ): (obj: JscadObject) => JscadObject {
-    return (obj) => ({
+  ): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => ({
       geom: obj.geom.map((g) => jscadColorize(color, g as any) as AnyGeom),
       bounds: obj.bounds,
       origin: obj.origin,
     });
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }

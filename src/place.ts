@@ -91,8 +91,8 @@ export type PlaceOptions = {
  * )
  */
 export function makePlace(resolve: DimResolver, translateFn: (v: Vec3) => (obj: JscadObject) => JscadObject) {
-  return function place(opts: PlaceOptions): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function place(opts: PlaceOptions): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const gap = opts.gap !== undefined ? resolve(opts.gap) : 0;
 
       const objW = obj.bounds.max[0] - obj.bounds.min[0];
@@ -206,5 +206,8 @@ export function makePlace(resolve: DimResolver, translateFn: (v: Vec3) => (obj: 
 
       return translateFn({ x: dx, y: dy, z: dz })(obj);
     };
+
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }

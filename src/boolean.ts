@@ -23,8 +23,8 @@ const {
 export function makeUnion() {
   return function union(
     ...others: JscadObject[]
-  ): (base: JscadObject) => JscadObject {
-    return (base) => {
+  ): ((base: JscadObject) => JscadObject) & ((bases: JscadObject[]) => JscadObject[]) {
+    const single = (base: JscadObject): JscadObject => {
       const allGeoms = [...base.geom, ...others.flatMap((o) => o.geom)];
       const bounds = others.reduce<Bounds>(
         (acc, o) => mergeBounds(acc, o.bounds),
@@ -32,6 +32,8 @@ export function makeUnion() {
       );
       return { geom: [jscadUnion(allGeoms as any) as AnyGeom], bounds, origin: base.origin };
     };
+    return (baseOrBases: JscadObject | JscadObject[]) =>
+      Array.isArray(baseOrBases) ? baseOrBases.map(single) : single(baseOrBases) as any;
   };
 }
 
@@ -48,8 +50,8 @@ export function makeUnion() {
 export function makeSubtract() {
   return function subtract(
     ...cutouts: JscadObject[]
-  ): (base: JscadObject) => JscadObject {
-    return (base) => {
+  ): ((base: JscadObject) => JscadObject) & ((bases: JscadObject[]) => JscadObject[]) {
+    const single = (base: JscadObject): JscadObject => {
       const allCutouts = cutouts.flatMap((o) => o.geom);
       return {
         geom: [jscadSubtract([...base.geom, ...allCutouts] as any) as AnyGeom],
@@ -57,6 +59,8 @@ export function makeSubtract() {
         origin: base.origin,
       };
     };
+    return (baseOrBases: JscadObject | JscadObject[]) =>
+      Array.isArray(baseOrBases) ? baseOrBases.map(single) : single(baseOrBases) as any;
   };
 }
 
@@ -73,8 +77,8 @@ export function makeSubtract() {
 export function makeIntersect() {
   return function intersect(
     ...others: JscadObject[]
-  ): (base: JscadObject) => JscadObject {
-    return (base) => {
+  ): ((base: JscadObject) => JscadObject) & ((bases: JscadObject[]) => JscadObject[]) {
+    const single = (base: JscadObject): JscadObject => {
       const allGeoms = [...base.geom, ...others.flatMap((o) => o.geom)];
       const bounds: Bounds = {
         min: [
@@ -90,5 +94,7 @@ export function makeIntersect() {
       };
       return { geom: [jscadIntersect(allGeoms as any) as AnyGeom], bounds, origin: base.origin };
     };
+    return (baseOrBases: JscadObject | JscadObject[]) =>
+      Array.isArray(baseOrBases) ? baseOrBases.map(single) : single(baseOrBases) as any;
   };
 }

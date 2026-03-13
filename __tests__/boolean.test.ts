@@ -69,3 +69,66 @@ describe("scission()", () => {
     expect(parts.length).toBe(2);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Array-input overloads
+// ---------------------------------------------------------------------------
+
+describe("subtract() — array input", () => {
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 100, y: 100, z: 100 } });
+    const b = cuboid({ size: { x: 50, y: 50, z: 50 } });
+    const hole = sphere({ radius: 10 });
+    const result = subtract(hole)([a, b]);
+    expect(result).toHaveLength(2);
+  });
+
+  it("applies the subtraction to each element independently", () => {
+    const a = cuboid({ size: { x: 100, y: 100, z: 100 } });
+    const b = cuboid({ size: { x: 50, y: 50, z: 50 } });
+    const hole = sphere({ radius: 5 });
+    const result = subtract(hole)([a, b]);
+    // Each result should still be a JscadObject with geom
+    expect(result[0]!.geom).toHaveLength(1);
+    expect(result[1]!.geom).toHaveLength(1);
+  });
+});
+
+describe("union() — array input", () => {
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const extra = sphere({ radius: 5 });
+    const result = union(extra)([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("intersect() — array input", () => {
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 100, y: 100, z: 100 } });
+    const b = cuboid({ size: { x: 80, y: 80, z: 80 } });
+    const clip = cuboid({ size: { x: 60, y: 60, z: 60 } });
+    const result = intersect(clip)([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("scission() — array input", () => {
+  it("returns JscadObject[][] (one array per input)", () => {
+    const { translateX } = createBuilder({ coordinateUnit: "mm" });
+    // Two separate merged objects
+    const make = () => {
+      const a = sphere({ radius: 10 });
+      const b = pipe(sphere({ radius: 10 }), translateX(200));
+      return pipe(a, union(b));
+    };
+    const merged1 = make();
+    const merged2 = make();
+    const result = scission([merged1, merged2]);
+    // Should return an array of two arrays
+    expect(result).toHaveLength(2);
+    expect(result[0]).toHaveLength(2);
+    expect(result[1]).toHaveLength(2);
+  });
+});

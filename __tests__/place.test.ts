@@ -138,4 +138,30 @@ describe("place()", () => {
       expect(placed.bounds.max).toEqual([25, 35, 15]);
     });
   });
+
+  // -------------------------------------------------------------------------
+  // Array-input overload
+  // -------------------------------------------------------------------------
+
+  describe("place() — array input", () => {
+    it("returns an array of the same length", () => {
+      const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+      const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+      const result = place({ at: { x: cm(5), y: cm(0), z: cm(0) } })([a, b]);
+      expect(result).toHaveLength(2);
+    });
+
+    it("each element is placed independently using its own bounds", () => {
+      // a starts at origin (size 10), b starts at origin (size 20)
+      // After place({ at: { x: cm(5) } }), both should have min[0] ≈ 5
+      const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+      const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+      const result = place({ at: { x: cm(5) } })([a, b]);
+      expect(result[0]!.bounds.min[0]).toBeCloseTo(5);
+      expect(result[1]!.bounds.min[0]).toBeCloseTo(5);
+      // Widths should be preserved independently
+      expect(result[0]!.bounds.max[0]).toBeCloseTo(15);
+      expect(result[1]!.bounds.max[0]).toBeCloseTo(25);
+    });
+  });
 });

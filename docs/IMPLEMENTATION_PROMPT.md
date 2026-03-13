@@ -13,8 +13,13 @@ An ergonomic TypeScript wrapper around `@jscad/modeling` that adds:
 - **Analytical placement** — `place()` resolves relative positioning (before,
   after, above, below, beside, leftOf) into a single `translate()` call, with
   optional gap and per-axis alignment.
-- **Curried transforms** — all transform and boolean functions return
-  `(obj: JscadObject) => JscadObject` for seamless use inside `pipe()`.
+- **Curried transforms** — all transform, boolean, and operation functions return
+  an overloaded function: `((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[])`,
+  expressed via the `Multi<JscadObject>` helper type in `factory.ts`. Passing a
+  single `JscadObject` returns a `JscadObject`; passing a `JscadObject[]` maps
+  independently over each element and returns `JscadObject[]`. Both forms work
+  seamlessly inside `pipe()`. `scission` is special: single input returns
+  `JscadObject[]`, array input returns `JscadObject[][]`.
 - **Named vectors** — `Vec3` / `Vec2` / `AngleVec3` use object keys (`x`, `y`,
   `z`) rather than positional arrays. Omitted axes default to 0.
 
@@ -279,7 +284,37 @@ import type { Unit, Angle } from "./measure";
 import type { Unit, Angle } from "@fea-lib/values";
 ```
 
-Everything else is unchanged.
+**Additional change — `Multi<T>` helper and `Builder` type:**
+
+Add a `Multi<T>` helper above the `Builder` type:
+
+```ts
+type Multi<T> = ((obj: JscadObject) => T) & ((objs: JscadObject[]) => T[]);
+```
+
+All 37 entries in the `Builder` type that previously used
+`(obj: JscadObject) => JscadObject` as a pipe-slot return type now use
+`Multi<JscadObject>` instead. For example:
+
+```ts
+// Before
+translate: (v: Vec3) => (obj: JscadObject) => JscadObject;
+subtract: (...cutouts: JscadObject[]) => (obj: JscadObject) => JscadObject;
+
+// After
+translate: (v: Vec3) => Multi<JscadObject>;
+subtract: (...cutouts: JscadObject[]) => Multi<JscadObject>;
+```
+
+`scission` is typed separately (not with `Multi`) because its array case
+returns `JscadObject[][]`, not `JscadObject[]`:
+
+```ts
+scission: {
+  (obj: JscadObject): JscadObject[];
+  (objs: JscadObject[]): JscadObject[][];
+};
+```
 
 ---
 

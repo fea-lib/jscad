@@ -14,8 +14,10 @@
 import { describe, it } from "vitest";
 import { createBuilder } from "../src/factory";
 import { cm, deg, mm } from "@fea-lib/values";
+import type { JscadObject } from "../src/types";
 
-const { cuboid, rotate } = createBuilder({ coordinateUnit: "mm" });
+const { cuboid, rotate, translate, subtract, scission, extrudeLinear, circle } =
+  createBuilder({ coordinateUnit: "mm" });
 
 /** Captures the type of a function for compile-time checking without calling it. */
 const check = <T>(_fn: () => T) => {};
@@ -39,5 +41,61 @@ describe("type safety — Length vs Angle discrimination", () => {
 
     // @ts-expect-error — deg() is an Angle, not a Dim
     check(() => cuboid({ size: { y: deg(20) } }));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Array-overload narrowing
+// ---------------------------------------------------------------------------
+
+describe("type safety — array overload narrowing", () => {
+  it("single-object overload returns JscadObject (not array)", () => {
+    const b = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    // TypeScript should narrow the return type to JscadObject
+    const result: JscadObject = translate({ x: 5 })(b);
+    check(() => result);
+  });
+
+  it("array overload returns JscadObject[]", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    // TypeScript should narrow the return type to JscadObject[]
+    const result: JscadObject[] = translate({ x: 5 })([a, b]);
+    check(() => result);
+  });
+
+  it("subtract() single overload returns JscadObject", () => {
+    const base = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const hole = cuboid({ size: { x: 5, y: 5, z: 5 } });
+    const result: JscadObject = subtract(hole)(base);
+    check(() => result);
+  });
+
+  it("subtract() array overload returns JscadObject[]", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const hole = cuboid({ size: { x: 5, y: 5, z: 5 } });
+    const result: JscadObject[] = subtract(hole)([a, b]);
+    check(() => result);
+  });
+
+  it("extrudeLinear() array overload returns JscadObject[]", () => {
+    const a = circle({ radius: 5 });
+    const b = circle({ radius: 10 });
+    const result: JscadObject[] = extrudeLinear({ height: 20 })([a, b]);
+    check(() => result);
+  });
+
+  it("scission() single overload returns JscadObject[]", () => {
+    const b = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const result: JscadObject[] = scission(b);
+    check(() => result);
+  });
+
+  it("scission() array overload returns JscadObject[][]", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result: JscadObject[][] = scission([a, b]);
+    check(() => result);
   });
 });

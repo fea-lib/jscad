@@ -70,11 +70,13 @@ export function makeExtrudeLinear() {
     height?: number;
     twistAngle?: number;
     twistSteps?: number;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const extruded = obj.geom.map((g) => jscadExtrudeLinear(opts, g as any) as AnyGeom);
       return { geom: extruded, bounds: boundsFromGeom(extruded), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -96,11 +98,13 @@ export function makeExtrudeRotate() {
     startAngle?: number;
     overflow?: "cap";
     segments?: number;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const extruded = obj.geom.map((g) => jscadExtrudeRotate(opts ?? {}, g as any) as AnyGeom);
       return { geom: extruded, bounds: boundsFromGeom(extruded), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -124,11 +128,13 @@ export function makeExtrudeRectangular() {
     height?: number;
     corners?: "edge" | "chamfer" | "round";
     segments?: number;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const extruded = obj.geom.map((g) => jscadExtrudeRectangular(opts ?? {}, g as any) as AnyGeom);
       return { geom: extruded, bounds: boundsFromGeom(extruded), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -152,11 +158,13 @@ export function makeExtrudeHelical() {
     height?: number;
     endOffset?: number;
     segmentsPerRotation?: number;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const extruded = obj.geom.map((g) => jscadExtrudeHelical(opts ?? {}, g as any) as AnyGeom);
       return { geom: extruded, bounds: boundsFromGeom(extruded), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -185,11 +193,13 @@ export function makeExtrudeFromSlices() {
     capEnd?: boolean;
     close?: boolean;
     callback?: (progress: number, index: number, base: any) => any;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const extruded = obj.geom.map((g) => jscadExtrudeFromSlices(opts, g) as AnyGeom);
       return { geom: extruded, bounds: boundsFromGeom(extruded), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -208,11 +218,13 @@ export function makeProject() {
   return function project(opts?: {
     axis?: [number, number, number];
     origin?: [number, number, number];
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const projected = obj.geom.map((g) => jscadProject(opts ?? {}, g as any) as unknown as AnyGeom);
       return { geom: projected, bounds: boundsFromGeom(projected), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -238,11 +250,13 @@ export function makeExpand() {
     delta?: number;
     corners?: "edge" | "chamfer" | "round";
     segments?: number;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const expanded = obj.geom.map((g) => jscadExpand(opts, g as any) as unknown as AnyGeom);
       return { geom: expanded, bounds: boundsFromGeom(expanded), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -263,11 +277,13 @@ export function makeOffset() {
     delta?: number;
     corners?: "edge" | "chamfer" | "round";
     segments?: number;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const offsetted = obj.geom.map((g) => jscadOffset(opts, g as any) as AnyGeom);
       return { geom: offsetted, bounds: boundsFromGeom(offsetted), origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -286,12 +302,14 @@ export function makeOffset() {
  * pipe(sphere({ radius: 10 }), hull(sphere({ radius: 5 })))
  */
 export function makeHull() {
-  return function hull(...others: JscadObject[]): (base: JscadObject) => JscadObject {
-    return (base) => {
+  return function hull(...others: JscadObject[]): ((base: JscadObject) => JscadObject) & ((bases: JscadObject[]) => JscadObject[]) {
+    const single = (base: JscadObject): JscadObject => {
       const allGeoms = [...base.geom, ...others.flatMap((o) => o.geom)];
       const result = [jscadHull(...(allGeoms as any[])) as AnyGeom];
       return { geom: result, bounds: boundsFromGeom(result), origin: base.origin };
     };
+    return (baseOrBases: JscadObject | JscadObject[]) =>
+      Array.isArray(baseOrBases) ? baseOrBases.map(single) : single(baseOrBases) as any;
   };
 }
 
@@ -305,12 +323,14 @@ export function makeHull() {
  * pipe(sphere({ radius: 10 }), hullChain(sphere({ radius: 5 })))
  */
 export function makeHullChain() {
-  return function hullChain(...others: JscadObject[]): (base: JscadObject) => JscadObject {
-    return (base) => {
+  return function hullChain(...others: JscadObject[]): ((base: JscadObject) => JscadObject) & ((bases: JscadObject[]) => JscadObject[]) {
+    const single = (base: JscadObject): JscadObject => {
       const allGeoms = [...base.geom, ...others.flatMap((o) => o.geom)];
       const result = [jscadHullChain(...(allGeoms as any[])) as AnyGeom];
       return { geom: result, bounds: boundsFromGeom(result), origin: base.origin };
     };
+    return (baseOrBases: JscadObject | JscadObject[]) =>
+      Array.isArray(baseOrBases) ? baseOrBases.map(single) : single(baseOrBases) as any;
   };
 }
 
@@ -335,11 +355,13 @@ export function makeGeneralize() {
     snap?: boolean;
     simplify?: boolean;
     triangulate?: boolean;
-  }): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  }): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const cleaned = obj.geom.map((g) => jscadGeneralize(opts, g as any) as AnyGeom);
       return { geom: cleaned, bounds: obj.bounds, origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -353,11 +375,13 @@ export function makeGeneralize() {
  * pipe(myObj, snap())
  */
 export function makeSnap() {
-  return function snap(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function snap(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const snapped = obj.geom.map((g) => jscadSnap(g as any) as AnyGeom);
       return { geom: snapped, bounds: obj.bounds, origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -371,11 +395,13 @@ export function makeSnap() {
  * pipe(myObj, retessellate())
  */
 export function makeRetessellate() {
-  return function retessellate(): (obj: JscadObject) => JscadObject {
-    return (obj) => {
+  return function retessellate(): ((obj: JscadObject) => JscadObject) & ((objs: JscadObject[]) => JscadObject[]) {
+    const single = (obj: JscadObject): JscadObject => {
       const retess = obj.geom.map((g) => jscadRetessellate(g as any) as AnyGeom);
       return { geom: retess, bounds: obj.bounds, origin: obj.origin };
     };
+    return (objOrObjs: JscadObject | JscadObject[]) =>
+      Array.isArray(objOrObjs) ? objOrObjs.map(single) : single(objOrObjs) as any;
   };
 }
 
@@ -386,15 +412,34 @@ export function makeRetessellate() {
 /**
  * Splits a self-intersecting or multi-body geometry into separate parts.
  *
- * Unlike the other boolean operations, scission is NOT curried — it takes
- * a JscadObject and returns an array of JscadObjects (one per body found).
+ * For a single JscadObject input, returns JscadObject[] (one per body found).
+ * For a JscadObject[] input, returns JscadObject[][] (one array per input object).
  *
  * @example
  * const parts = scission(union(sphereA, sphereB))
+ * const partArrays = scission([objA, objB])
  */
-export function makeScission() {
-  return function scission(obj: JscadObject): JscadObject[] {
-    const parts = jscadScission(...(obj.geom as any[]));
+export function makeScission(): {
+  (obj: JscadObject): JscadObject[];
+  (objs: JscadObject[]): JscadObject[][];
+} {
+  function scission(obj: JscadObject): JscadObject[];
+  function scission(objs: JscadObject[]): JscadObject[][];
+  function scission(objOrObjs: JscadObject | JscadObject[]): JscadObject[] | JscadObject[][] {
+    if (Array.isArray(objOrObjs)) {
+      return objOrObjs.map((obj) => {
+        const parts = jscadScission(...(obj.geom as any[]));
+        return parts.map((g: AnyGeom) => {
+          const bounds = boundsFromGeom([g]);
+          return {
+            geom: [g],
+            bounds,
+            origin: { x: bounds.min[0], y: bounds.min[1], z: bounds.min[2] },
+          };
+        });
+      });
+    }
+    const parts = jscadScission(...(objOrObjs.geom as any[]));
     return parts.map((g: AnyGeom) => {
       const bounds = boundsFromGeom([g]);
       return {
@@ -403,7 +448,8 @@ export function makeScission() {
         origin: { x: bounds.min[0], y: bounds.min[1], z: bounds.min[2] },
       };
     });
-  };
+  }
+  return scission;
 }
 
 // ---------------------------------------------------------------------------

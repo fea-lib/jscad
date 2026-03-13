@@ -110,6 +110,15 @@ export function createDimResolver(coordinateUnit: Unit): DimResolver {
 // ---------------------------------------------------------------------------
 
 /**
+ * Round a coordinate value to 5 decimal places.
+ * Eliminates floating-point epsilon noise (e.g. -1.78e-15 from sin(π/2))
+ * so that exact equality checks work in tests.
+ */
+export function r5(n: number): number {
+  return Math.round(n * 100000) / 100000;
+}
+
+/**
  * Compute bounds from raw JSCAD 3D geometry by calling measureBoundingBox once.
  * This is the only place the expensive O(vertices) call is made for Geom3.
  */
@@ -120,7 +129,7 @@ export function boundsFromGeom3(geom: Geom3 | Geom3[]): Bounds {
   }
   if (geoms.length === 1) {
     const [[minX, minY, minZ], [maxX, maxY, maxZ]] = measureBoundingBox(geoms[0]);
-    return { min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
+    return { min: [r5(minX), r5(minY), r5(minZ)], max: [r5(maxX), r5(maxY), r5(maxZ)] };
   }
   let minX = Infinity, minY = Infinity, minZ = Infinity;
   let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
@@ -133,7 +142,7 @@ export function boundsFromGeom3(geom: Geom3 | Geom3[]): Bounds {
     if (y1 > maxY) maxY = y1;
     if (z1 > maxZ) maxZ = z1;
   }
-  return { min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
+  return { min: [r5(minX), r5(minY), r5(minZ)], max: [r5(maxX), r5(maxY), r5(maxZ)] };
 }
 
 /**
@@ -143,7 +152,7 @@ export function boundsFromGeom2(geom: Geom2 | Geom2[]): Bounds {
   const geoms = Array.isArray(geom) ? geom : [geom];
   if (geoms.length === 0) return { min: [0, 0, 0], max: [0, 0, 0] };
   const [[minX, minY], [maxX, maxY]] = measureBoundingBox(geoms[0] as any);
-  if (geoms.length === 1) return { min: [minX, minY, 0], max: [maxX, maxY, 0] };
+  if (geoms.length === 1) return { min: [r5(minX), r5(minY), 0], max: [r5(maxX), r5(maxY), 0] };
   let lx = minX, ly = minY, hx = maxX, hy = maxY;
   for (let i = 1; i < geoms.length; i++) {
     const [[x0, y0], [x1, y1]] = measureBoundingBox(geoms[i] as any);
@@ -152,7 +161,7 @@ export function boundsFromGeom2(geom: Geom2 | Geom2[]): Bounds {
     if (x1 > hx) hx = x1;
     if (y1 > hy) hy = y1;
   }
-  return { min: [lx, ly, 0], max: [hx, hy, 0] };
+  return { min: [r5(lx), r5(ly), 0], max: [r5(hx), r5(hy), 0] };
 }
 
 /**
@@ -176,7 +185,7 @@ export function boundsFromGeom(geom: AnyGeom | AnyGeom[]): Bounds {
     if (y1 > maxY) maxY = y1;
     if (z1 > maxZ) maxZ = z1;
   }
-  return { min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
+  return { min: [r5(minX), r5(minY), r5(minZ)], max: [r5(maxX), r5(maxY), r5(maxZ)] };
 }
 
 /**

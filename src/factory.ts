@@ -59,6 +59,13 @@ export type BuilderConfig = {
 type RotateOpts = { around?: "center" | "corner" };
 
 /**
+ * Overloaded function type: single object → T, array → T[].
+ * The single-object overload is listed last so that TypeScript's `infer R`
+ * in PipeReturn resolves to T (not T[]), keeping pipe() chains type-safe.
+ */
+type Multi<T> = ((objs: JscadObject[]) => T[]) & ((obj: JscadObject) => T);
+
+/**
  * The full set of builder functions returned by createBuilder.
  * All functions are bound to the configured coordinateUnit.
  *
@@ -124,112 +131,115 @@ export type Builder = {
   // ---- Transforms ----
 
   /** Translate by { x?, y?, z? }. Omitted axes default to 0. Curried. */
-  translate: (v: Vec3) => (obj: JscadObject) => JscadObject;
+  translate: (v: Vec3) => Multi<JscadObject>;
   /** Translate along X only. Curried. */
-  translateX: (d: Dim) => (obj: JscadObject) => JscadObject;
+  translateX: (d: Dim) => Multi<JscadObject>;
   /** Translate along Y only. Curried. */
-  translateY: (d: Dim) => (obj: JscadObject) => JscadObject;
+  translateY: (d: Dim) => Multi<JscadObject>;
   /** Translate along Z only. Curried. */
-  translateZ: (d: Dim) => (obj: JscadObject) => JscadObject;
+  translateZ: (d: Dim) => Multi<JscadObject>;
 
   /** Rotate by { x?, y?, z? } angles. Accepts raw radians or deg()/rad(). Omitted axes default to 0. Curried. Default: center. */
-  rotate: (angles: AngleVec3, opts?: RotateOpts) => (obj: JscadObject) => JscadObject;
+  rotate: (angles: AngleVec3, opts?: RotateOpts) => Multi<JscadObject>;
   /** Rotate around X axis. Curried. Default: center. */
-  rotateX: (angle: Angle, opts?: RotateOpts) => (obj: JscadObject) => JscadObject;
+  rotateX: (angle: Angle, opts?: RotateOpts) => Multi<JscadObject>;
   /** Rotate around Y axis. Curried. Default: center. */
-  rotateY: (angle: Angle, opts?: RotateOpts) => (obj: JscadObject) => JscadObject;
+  rotateY: (angle: Angle, opts?: RotateOpts) => Multi<JscadObject>;
   /** Rotate around Z axis. Curried. Default: center. */
-  rotateZ: (angle: Angle, opts?: RotateOpts) => (obj: JscadObject) => JscadObject;
+  rotateZ: (angle: Angle, opts?: RotateOpts) => Multi<JscadObject>;
 
   /** Scale by { x?, y?, z? }. Omitted axes default to 1. Curried. */
-  scale: (v: ScaleVec3) => (obj: JscadObject) => JscadObject;
+  scale: (v: ScaleVec3) => Multi<JscadObject>;
   /** Scale along X only. Curried. */
-  scaleX: (factor: number) => (obj: JscadObject) => JscadObject;
+  scaleX: (factor: number) => Multi<JscadObject>;
   /** Scale along Y only. Curried. */
-  scaleY: (factor: number) => (obj: JscadObject) => JscadObject;
+  scaleY: (factor: number) => Multi<JscadObject>;
   /** Scale along Z only. Curried. */
-  scaleZ: (factor: number) => (obj: JscadObject) => JscadObject;
+  scaleZ: (factor: number) => Multi<JscadObject>;
 
   /** Mirror across arbitrary plane. Curried. */
-  mirror: (opts: { origin?: NumVec3; normal?: NumVec3 }) => (obj: JscadObject) => JscadObject;
+  mirror: (opts: { origin?: NumVec3; normal?: NumVec3 }) => Multi<JscadObject>;
   /** Mirror across YZ plane (negate X). Curried (no args). */
-  mirrorX: () => (obj: JscadObject) => JscadObject;
+  mirrorX: () => Multi<JscadObject>;
   /** Mirror across XZ plane (negate Y). Curried (no args). */
-  mirrorY: () => (obj: JscadObject) => JscadObject;
+  mirrorY: () => Multi<JscadObject>;
   /** Mirror across XY plane (negate Z). Curried (no args). */
-  mirrorZ: () => (obj: JscadObject) => JscadObject;
+  mirrorZ: () => Multi<JscadObject>;
 
   /** Center on specified axes. Curried. */
-  center: (opts: { axes?: BoolVec3; relativeTo?: NumVec3 }) => (obj: JscadObject) => JscadObject;
+  center: (opts: { axes?: BoolVec3; relativeTo?: NumVec3 }) => Multi<JscadObject>;
   /** Center on X axis. Curried (no args). */
-  centerX: () => (obj: JscadObject) => JscadObject;
+  centerX: () => Multi<JscadObject>;
   /** Center on Y axis. Curried (no args). */
-  centerY: () => (obj: JscadObject) => JscadObject;
+  centerY: () => Multi<JscadObject>;
   /** Center on Z axis. Curried (no args). */
-  centerZ: () => (obj: JscadObject) => JscadObject;
+  centerZ: () => Multi<JscadObject>;
 
   /** Align on axes using modes (min/max/center/none). Curried. */
-  align: (opts: { modes?: Array<"center" | "max" | "min" | "none">; relativeTo?: NullableNumVec3; grouped?: boolean }) => (obj: JscadObject) => JscadObject;
+  align: (opts: { modes?: Array<"center" | "max" | "min" | "none">; relativeTo?: NullableNumVec3; grouped?: boolean }) => Multi<JscadObject>;
 
   /** Apply a raw 4×4 matrix transform. Curried. */
-  transform: (matrix: readonly number[]) => (obj: JscadObject) => JscadObject;
+  transform: (matrix: readonly number[]) => Multi<JscadObject>;
 
   /** Apply RGBA color. Curried. */
-  colorize: (color: [number, number, number] | [number, number, number, number]) => (obj: JscadObject) => JscadObject;
+  colorize: (color: [number, number, number] | [number, number, number, number]) => Multi<JscadObject>;
 
   // ---- Booleans ----
 
   /** Boolean union. Curried. */
-  union: (...others: JscadObject[]) => (base: JscadObject) => JscadObject;
+  union: (...others: JscadObject[]) => Multi<JscadObject>;
   /** Boolean subtract. Curried. */
-  subtract: (...cutouts: JscadObject[]) => (base: JscadObject) => JscadObject;
+  subtract: (...cutouts: JscadObject[]) => Multi<JscadObject>;
   /** Boolean intersection. Curried. */
-  intersect: (...others: JscadObject[]) => (base: JscadObject) => JscadObject;
-  /** Split multi-body geometry into separate parts. Returns array. */
-  scission: (obj: JscadObject) => JscadObject[];
+  intersect: (...others: JscadObject[]) => Multi<JscadObject>;
+  /** Split multi-body geometry into separate parts. Single object → JscadObject[]. Array → JscadObject[][]. */
+  scission: {
+    (obj: JscadObject): JscadObject[];
+    (objs: JscadObject[]): JscadObject[][];
+  };
 
   // ---- Extrusions ----
 
   /** Extrude 2D shape linearly along Z. Curried. */
-  extrudeLinear: (opts: { height?: number; twistAngle?: number; twistSteps?: number }) => (obj: JscadObject) => JscadObject;
+  extrudeLinear: (opts: { height?: number; twistAngle?: number; twistSteps?: number }) => Multi<JscadObject>;
   /** Revolve 2D shape around Z axis. Curried. */
-  extrudeRotate: (opts?: { angle?: number; startAngle?: number; overflow?: "cap"; segments?: number }) => (obj: JscadObject) => JscadObject;
+  extrudeRotate: (opts?: { angle?: number; startAngle?: number; overflow?: "cap"; segments?: number }) => Multi<JscadObject>;
   /** Extrude 2D shape with rectangular cross-section. Curried. */
-  extrudeRectangular: (opts?: { size?: number; height?: number; corners?: "edge" | "chamfer" | "round"; segments?: number }) => (obj: JscadObject) => JscadObject;
+  extrudeRectangular: (opts?: { size?: number; height?: number; corners?: "edge" | "chamfer" | "round"; segments?: number }) => Multi<JscadObject>;
   /** Extrude 2D shape along a helical path. Curried. */
-  extrudeHelical: (opts?: { angle?: number; startAngle?: number; pitch?: number; height?: number; endOffset?: number; segmentsPerRotation?: number }) => (obj: JscadObject) => JscadObject;
+  extrudeHelical: (opts?: { angle?: number; startAngle?: number; pitch?: number; height?: number; endOffset?: number; segmentsPerRotation?: number }) => Multi<JscadObject>;
   /** Extrude between arbitrary cross-section slices. Curried. */
-  extrudeFromSlices: (opts: { numberOfSlices?: number; capStart?: boolean; capEnd?: boolean; close?: boolean; callback?: (progress: number, index: number, base: any) => any }) => (obj: JscadObject) => JscadObject;
+  extrudeFromSlices: (opts: { numberOfSlices?: number; capStart?: boolean; capEnd?: boolean; close?: boolean; callback?: (progress: number, index: number, base: any) => any }) => Multi<JscadObject>;
   /** Project 3D solid onto XY plane. Curried. */
-  project: (opts?: { axis?: [number, number, number]; origin?: [number, number, number] }) => (obj: JscadObject) => JscadObject;
+  project: (opts?: { axis?: [number, number, number]; origin?: [number, number, number] }) => Multi<JscadObject>;
 
   // ---- Expansions ----
 
   /** Expand (inflate) or contract geometry by a delta. Curried. */
-  expand: (opts: { delta?: number; corners?: "edge" | "chamfer" | "round"; segments?: number }) => (obj: JscadObject) => JscadObject;
+  expand: (opts: { delta?: number; corners?: "edge" | "chamfer" | "round"; segments?: number }) => Multi<JscadObject>;
   /** Offset a 2D geometry or path outward/inward. Curried. */
-  offset: (opts: { delta?: number; corners?: "edge" | "chamfer" | "round"; segments?: number }) => (obj: JscadObject) => JscadObject;
+  offset: (opts: { delta?: number; corners?: "edge" | "chamfer" | "round"; segments?: number }) => Multi<JscadObject>;
 
   // ---- Hulls ----
 
   /** Convex hull of base and others. Curried. */
-  hull: (...others: JscadObject[]) => (base: JscadObject) => JscadObject;
+  hull: (...others: JscadObject[]) => Multi<JscadObject>;
   /** Pairwise convex hull chain. Curried. */
-  hullChain: (...others: JscadObject[]) => (base: JscadObject) => JscadObject;
+  hullChain: (...others: JscadObject[]) => Multi<JscadObject>;
 
   // ---- Modifiers ----
 
   /** Generalize geometry (snap/simplify/triangulate). Curried. */
-  generalize: (opts: { snap?: boolean; simplify?: boolean; triangulate?: boolean }) => (obj: JscadObject) => JscadObject;
+  generalize: (opts: { snap?: boolean; simplify?: boolean; triangulate?: boolean }) => Multi<JscadObject>;
   /** Snap vertices to epsilon grid. Curried (no args). */
-  snap: () => (obj: JscadObject) => JscadObject;
+  snap: () => Multi<JscadObject>;
   /** Merge coplanar polygons (reduces polygon count). Curried (no args). */
-  retessellate: () => (obj: JscadObject) => JscadObject;
+  retessellate: () => Multi<JscadObject>;
 
   // ---- Place (builder-specific) ----
 
   /** Position using absolute or relative placement options. Curried. */
-  place: (opts: PlaceOptions) => (obj: JscadObject) => JscadObject;
+  place: (opts: PlaceOptions) => Multi<JscadObject>;
 
   // ---- Text utilities ----
 

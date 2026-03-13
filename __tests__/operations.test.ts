@@ -3,10 +3,12 @@ import { createBuilder } from "../src/factory";
 
 const {
   cuboid, circle, rectangle, square,
+  extrudeLinear, extrudeRotate,
   expand, offset,
   hull, hullChain,
   generalize, retessellate, snap,
   union, subtract,
+  pipe,
 } = createBuilder({ coordinateUnit: "mm" });
 
 // ---------------------------------------------------------------------------
@@ -117,5 +119,55 @@ describe("snap()", () => {
     const b = cuboid({ size: { x: 10, y: 10, z: 10 } });
     const snapped = snap()(b);
     expect(snapped.geom).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Array-input overloads
+// ---------------------------------------------------------------------------
+
+describe("extrudeLinear() — array input", () => {
+  it("returns an array of the same length", () => {
+    const a = circle({ radius: 5 });
+    const b = circle({ radius: 10 });
+    const result = extrudeLinear({ height: 20 })([a, b]);
+    expect(result).toHaveLength(2);
+  });
+
+  it("each result is a separate JscadObject with geom", () => {
+    const a = circle({ radius: 5 });
+    const b = circle({ radius: 10 });
+    const result = extrudeLinear({ height: 20 })([a, b]);
+    expect(result[0]!.geom).toHaveLength(1);
+    expect(result[1]!.geom).toHaveLength(1);
+  });
+});
+
+describe("extrudeRotate() — array input", () => {
+  it("returns an array of the same length", () => {
+    const a = rectangle({ size: { x: 5, y: 10 } });
+    const b = rectangle({ size: { x: 3, y: 8 } });
+    const result = extrudeRotate({ segments: 16 })([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("expand() — array input", () => {
+  it("returns an array of the same length", () => {
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 20, y: 20, z: 20 } });
+    const result = expand({ delta: 1 })([a, b]);
+    expect(result).toHaveLength(2);
+  });
+});
+
+describe("hull() — array input", () => {
+  it("returns an array of the same length", () => {
+    const { translate } = createBuilder({ coordinateUnit: "mm" });
+    const a = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const b = cuboid({ size: { x: 10, y: 10, z: 10 } });
+    const extra = translate({ x: 50 })(cuboid({ size: { x: 5, y: 5, z: 5 } }));
+    const result = hull(extra)([a, b]);
+    expect(result).toHaveLength(2);
   });
 });
