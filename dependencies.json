@@ -1,7 +1,8 @@
 {
   "peerLibraries": [
     {
-      "repo": "https://github.com/fea-lib/values",
+      "repo": "git@github.com:fea-lib/values.git",
+      "installScript": "https://github.com/fea-lib/values/raw/main/install.sh",
       "installPath": "@fea-lib/values"
     }
   ]

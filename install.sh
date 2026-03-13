@@ -40,7 +40,7 @@ if [ -f "$DEPS_FILE" ]; then
     PEER_INSTALL_SH=$(node -e "
       const d = require('$DEPS_FILE');
       const p = d.peerLibraries[$i];
-      process.stdout.write(p.repo + '/raw/main/install.sh');
+      process.stdout.write(p.installScript);
     ")
     PEER_TMP=$(mktemp)
     curl -fsSL "$PEER_INSTALL_SH" -o "$PEER_TMP"
